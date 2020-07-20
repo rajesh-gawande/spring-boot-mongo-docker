@@ -5,7 +5,7 @@ metadata:
     name: springboot
   name: spring-deployment
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       name: springboot
@@ -15,7 +15,7 @@ spec:
         name: springboot
     spec:
       containers:
-      - image: infarajesh/demonginx1:56
+      - image: infarajesh/demonginx1:47
         name: springboot
         ports:
         - name: springboot
