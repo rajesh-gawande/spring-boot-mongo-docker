@@ -1,6 +1,6 @@
 node{
      
-    /*def buildnumber = BUILD_NUMBER*/
+    def buildnumber = BUILD_NUMBER
     stage('SCM Checkout')
     {
         git credentialsId: 'GitHubID', url: 'https://github.com/rajesh-gawande/spring-boot-mongo-docker.git'
@@ -15,14 +15,14 @@ node{
     
     stage("docker build")
     {
-    sh "docker build -t infarajesh/demonginx1:1.0 ."
+    sh "docker build -t infarajesh/demonginx1:${buildnumber} ."
     }
      stage('Push Docker Image'){
         withCredentials([string(credentialsId: 'Docker_Hub_Pass', variable: 'Docker_Hub_Pass')])
         {
           sh "docker login -u infarajesh -p ${Docker_Hub_Pass}"
         }
-        sh "docker push infarajesh/demonginx1:1.0"
+        sh "docker push infarajesh/demonginx1:${buildnumber}"
      }
     
     stage("Deploy To Kuberates Cluster"){
