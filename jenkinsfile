@@ -31,3 +31,80 @@ node{
     
     
     }
+    
+    
+    ---------------
+    
+    
+    
+   pipeline
+{
+    agent any
+    environment 
+    {
+        def buildnumber = getDockerTag()
+    }
+    /*def buildnumber = "BUILD_NUMBER"*/
+    stages  
+    {
+        stage('Git checkout')
+        {
+            steps
+            {
+               git credentialsId: 'GitHubID', url: 'https://github.com/rajesh-gawande/spring-boot-mongo-docker.git' 
+            }
+        }
+        stage('Maven Build')
+        {
+            steps
+            {
+                script
+                {
+                def mavenHome =  tool name: "Maven-3.6.3", type: "maven"
+                def mavenCMD = "${mavenHome}/bin/mvn"
+                sh "${mavenCMD} clean package"
+                }
+            }
+        }
+        stage('Docker Build')
+        {
+            steps
+            {
+                sh "docker build . -t infarajesh/demonginx1:${buildnumber}"
+            }
+            
+        }
+        stage('Docker Push')
+        {
+            steps
+            {
+                withCredentials([string(credentialsId: 'Docker_Hub_Pass', variable: 'Docker_Hub_Pass')]) {
+                sh "docker login -u infarajesh -p ${Docker_Hub_Pass}"
+                sh "docker push infarajesh/demonginx1:${buildnumber}"
+                }
+                
+            }
+            
+        }
+        stage('Kubernetes Deploy')
+        {
+            steps
+            {
+               sh "kubectl delete rc spring-controller"
+               sh "kubectl delete rc mongo-controller"
+               sh "kubectl delete svc mongo"
+               sh "kubectl delete svc springboot"
+               sh "kubectl apply -f springBootMongo.yml"
+                
+            }
+            
+        }
+        
+    }
+}
+
+def getDockerTag()
+{
+    def tag = BUILD_NUMBER
+    return tag
+}
