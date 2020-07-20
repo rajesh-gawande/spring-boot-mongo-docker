@@ -12,7 +12,7 @@ spec:
         name: springboot
     spec:
       containers:
-      - image: infarajesh/demonginx1:1.0
+      - image: infarajesh/demonginx1:35
         name: springboot
         ports:
         - name: springboot
