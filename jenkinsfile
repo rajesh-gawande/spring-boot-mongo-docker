@@ -1,0 +1,33 @@
+node{
+     
+    /*def buildnumber = BUILD_NUMBER*/
+    stage('SCM Checkout')
+    {
+        git credentialsId: 'GitHubID', url: 'https://github.com/rajesh-gawande/spring-boot-mongo-docker.git'
+    }    
+    
+    stage("Meven Test")
+    {
+    def mavenHome = tool name: "Maven-3.6.3", type: "maven"
+    def mavenCMD = "${mavenHome}/bin/mvn"
+    sh "${mavenCMD} clean package"
+    }
+    
+    stage("docker build")
+    {
+    sh "docker build -t infarajesh/demonginx1:1.0 ."
+    }
+     stage('Push Docker Image'){
+        withCredentials([string(credentialsId: 'Docker_Hub_Pass', variable: 'Docker_Hub_Pass')])
+        {
+          sh "docker login -u infarajesh -p ${Docker_Hub_Pass}"
+        }
+        sh "docker push infarajesh/demonginx1:1.0"
+     }
+    
+    stage("Deploy To Kuberates Cluster"){
+         sh 'kubectl apply -f springBootMongo.yml'
+      }
+    
+    
+    }
