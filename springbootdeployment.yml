@@ -19,7 +19,11 @@ spec:
         name: springboot
         ports:
         - name: springboot
-          containerPort: 8080      
+          containerPort: 8080 
+      imagePullSecrets:
+      - name: dockerreposecret
+          
+      
 ---
 # Node Port Service
 apiVersion: v1
